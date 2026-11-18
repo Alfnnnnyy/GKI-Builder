@@ -881,6 +881,7 @@ jobs:
       # ==================== 创建 GitHub Release ====================
       - name: 创建 GitHub Release
         if: inputs.release_type != 'Actions'
+        continue-on-error: true
         run: |
           PRERELEASE_FLAG=""
           if [ "${{ inputs.release_type }}" == "Pre-Release" ]; then
@@ -888,10 +889,11 @@ jobs:
           fi
 
           gh release create "$NEW_TAG" \
+            --repo "${{ github.repository }}" \
             --title "$RELEASE_NAME" \
             --notes-file release_body.md \
-            --target "$GITHUB_SHA" \
-            $PRERELEASE_FLAG
+            --target "${{ github.sha }}" \
+            $PRERELEASE_FLAG || true
 
       # ==================== 上传管理器和模块 ====================
       - name: 上传管理器和 SUSFS / NoMount 模块
@@ -907,25 +909,26 @@ jobs:
           echo "NoMount files: ${nomount_count}"
           find ./downloaded-artifacts -type f -name "*.apk" -print0 | \
           while IFS= read -r -d '' f; do
-            gh release upload "$NEW_TAG" "$f" || true
+            gh release upload "$NEW_TAG" "$f" --repo "${{ github.repository }}" || true
           done
           find ./downloaded-artifacts -type f -path "./downloaded-artifacts/susfs-*/*" -print0 | \
           while IFS= read -r -d '' f; do
-            gh release upload "$NEW_TAG" "$f" || true
+            gh release upload "$NEW_TAG" "$f" --repo "${{ github.repository }}" || true
           done
           find ./downloaded-artifacts -type f -path "./downloaded-artifacts/nomount-*/*" -print0 | \
           while IFS= read -r -d '' f; do
-            gh release upload "$NEW_TAG" "$f" || true
+            gh release upload "$NEW_TAG" "$f" --repo "${{ github.repository }}" || true
           done
 
       # ==================== 上传内核产物 ====================
       - name: 上传内核产物
         if: inputs.release_type != 'Actions'
+        continue-on-error: true
         run: |
           find ./downloaded-artifacts -type f \( -name "*.zip" -o -name "*.img" \) ! -path "*/susfs-*/*" ! -path "*/nomount-*/*" -print0 | \
           while IFS= read -r -d '' file; do
             echo "上传 $file..."
-            gh release upload "$NEW_TAG" "$file" --clobber || true
+            gh release upload "$NEW_TAG" "$file" --repo "${{ github.repository }}" --clobber || true
           done
 
       # ==================== 构建摘要 ====================
@@ -939,7 +942,7 @@ jobs:
 
       # ==================== 发送 Telegram 通知与产物 ====================
       - name: 发送 Telegram 通知与构建产物
-        if: env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != ''
+        if: always() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != ''
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
