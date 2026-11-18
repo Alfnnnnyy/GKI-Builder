@@ -88,6 +88,14 @@ on:
         required: false
         type: boolean
         default: false
+      f6_profile:
+        required: false
+        type: boolean
+        default: false
+      source_branch:
+        required: false
+        type: string
+        default: "F6"
 
 jobs:
   build-kernel:
@@ -145,7 +153,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: ${{ vars.SOURCE_REPO || 'Alfnnnnyy/GKI_KernelSU_SUSFS' }}
-          ref: ${{ vars.SOURCE_BRANCH || 'NoMount' }}
+          ref: ${{ inputs.source_branch || vars.SOURCE_BRANCH || 'F6' }}
           token: ${{ secrets.PRIVATE_REPO_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: 初始化构建环境
@@ -898,6 +906,17 @@ jobs:
 
           if grep -q "CONFIG_ZSMALLOC=y" "$CONFIG_FILE" && grep -q "CONFIG_ZRAM=y" "$CONFIG_FILE"; then
             cat "$ZZH_PATCHES/config/zram.config" >> "$CONFIG_FILE"
+          fi
+
+      - name: 配置 F6 专属性能调优
+        if: inputs.f6_profile
+        run: |
+          echo "=== 应用 F6 (peridot) 专属性能调优 ==="
+          if [ -f "$ZZH_PATCHES/config/f6_perf.config" ]; then
+            sed -i 's/^CONFIG_HZ_250=y/# CONFIG_HZ_250 is not set/' "$DEFCONFIG" || true
+            sed -i 's/^CONFIG_HZ=250/CONFIG_HZ=300/' "$DEFCONFIG" || true
+            cat "$ZZH_PATCHES/config/f6_perf.config" >> "$DEFCONFIG"
+            echo "已成功启用 CONFIG_HZ_300 (120Hz/60Hz 帧率对齐)"
           fi
 
       - name: 添加 BBG 防格机补丁

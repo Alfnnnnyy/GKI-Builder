@@ -137,6 +137,16 @@ on:
         description: "自定义更新日志 (Custom Changelog Telegram, kosongkan jika pakai changelog.md)"
         required: false
         type: string
+      f6_profile:
+        description: "启用 F6 / peridot 专属性能优化 (HZ_300 帧率对齐)"
+        required: false
+        type: boolean
+        default: false
+      source_branch:
+        description: "源码分支 (默认 NoMount, F6 分支调优请填 F6)"
+        required: false
+        type: string
+        default: "F6"
 
 jobs:
   resolve-version:
@@ -157,7 +167,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: ${{ vars.SOURCE_REPO || 'Alfnnnnyy/GKI_KernelSU_SUSFS' }}
-          ref: ${{ vars.SOURCE_BRANCH || 'NoMount' }}
+          ref: ${{ inputs.source_branch || vars.SOURCE_BRANCH || 'F6' }}
           token: ${{ secrets.PRIVATE_REPO_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: 解析安全补丁级别
@@ -305,6 +315,8 @@ jobs:
       droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
       artifact_upload_mode: ${{ inputs.artifact_upload_mode }}
       build_nomount: ${{ inputs.build_nomount || false }}
+      f6_profile: ${{ inputs.f6_profile || false }}
+      source_branch: ${{ inputs.source_branch || 'F6' }}
 
   build-5-15:
     if: needs.resolve-version.outputs.has_5_15 == 'true'
@@ -337,6 +349,8 @@ jobs:
       droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
       artifact_upload_mode: ${{ inputs.artifact_upload_mode }}
       build_nomount: ${{ inputs.build_nomount || false }}
+      f6_profile: ${{ inputs.f6_profile || false }}
+      source_branch: ${{ inputs.source_branch || 'F6' }}
 
   build-6-1:
     if: needs.resolve-version.outputs.has_6_1 == 'true'
@@ -369,6 +383,8 @@ jobs:
       droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
       artifact_upload_mode: ${{ inputs.artifact_upload_mode }}
       build_nomount: ${{ inputs.build_nomount || false }}
+      f6_profile: ${{ inputs.f6_profile || false }}
+      source_branch: ${{ inputs.source_branch || 'F6' }}
 
   build-6-6:
     if: needs.resolve-version.outputs.has_6_6 == 'true'
@@ -401,6 +417,8 @@ jobs:
       droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
       artifact_upload_mode: ${{ inputs.artifact_upload_mode }}
       build_nomount: ${{ inputs.build_nomount || false }}
+      f6_profile: ${{ inputs.f6_profile || false }}
+      source_branch: ${{ inputs.source_branch || 'F6' }}
 
   build-6-12:
     if: needs.resolve-version.outputs.has_6_12 == 'true'
@@ -433,6 +451,8 @@ jobs:
       droidspaces_ntsync: ${{ inputs.droidspaces_ntsync || false }}
       artifact_upload_mode: ${{ inputs.artifact_upload_mode }}
       build_nomount: ${{ inputs.build_nomount || false }}
+      f6_profile: ${{ inputs.f6_profile || false }}
+      source_branch: ${{ inputs.source_branch || 'F6' }}
 
   get-ksu-manager:
     uses: ./.github/workflows/get-manager.yml
@@ -655,7 +675,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: ${{ vars.SOURCE_REPO || 'Alfnnnnyy/GKI_KernelSU_SUSFS' }}
-          ref: ${{ vars.SOURCE_BRANCH || 'NoMount' }}
+          ref: ${{ inputs.source_branch || vars.SOURCE_BRANCH || 'F6' }}
           fetch-depth: 0
           token: ${{ secrets.PRIVATE_REPO_TOKEN || secrets.GITHUB_TOKEN }}
       # ==================== 确定 KSU 引用 ====================
@@ -965,5 +985,6 @@ jobs:
           FEAT_NTSYNC: ${{ inputs.droidspaces_ntsync }}
           FEAT_REKERNEL: ${{ inputs.use_rekernel }}
           FEAT_KPM: ${{ inputs.use_kpm != 'disabled (关闭)' }}
+          FEAT_F6_PROFILE: ${{ inputs.f6_profile }}
         run: |
           bash "$GITHUB_WORKSPACE/scripts/send_telegram.sh" "./downloaded-artifacts"

@@ -172,6 +172,9 @@ fi
 if [ "${FEAT_KPM:-false}" = "true" ]; then
   FEATURES_LIST+=$'\n'$(printf "  ✅ <b>KPM:</b> Kernel Patch Module Enabled")
 fi
+if [ "${FEAT_F6_PROFILE:-false}" = "true" ]; then
+  FEATURES_LIST+=$'\n'$(printf "  ✅ <b>F6 Optimizer:</b> HZ_300 Timer (120Hz/60Hz Frame-Sync)")
+fi
 
 BUILD_SCOPE="${INPUT_KERNEL_VERSION:-all}"
 if [ "$BUILD_SCOPE" = "all" ]; then
