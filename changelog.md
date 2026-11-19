@@ -1,7 +1,6 @@
 # Kernel Changelog
 
-- [SELinux] Hide KernelSU/Magisk context queries from Duck Detector
-- [SELinux] Hide KSU domain transitions through `/proc/self/attr/current`
-- [SELinux] Hide DirtySepolicy checks for `system_server execmem` and `zygote adb_data_file`
-- [SUSFS] Fix config validation on older GKI kernels
-- [NoMount] Update driver version to v2.3.0
+- [F6] Enable `CONFIG_HZ_300=y` (align scheduler tick with 60/120Hz display refresh)
+- [Net] Enable `CONFIG_NET_SCH_DEFAULT=y` & `CONFIG_DEFAULT_FQ=y` (default qdisc=fq for TCP BBR)
+- [SELinux] Hide KernelSU/Magisk context queries & DirtySepolicy checks
+- [NoMount] Integrated NoMount VFS driver v2.3.0

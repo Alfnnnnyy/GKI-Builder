@@ -1052,8 +1052,18 @@ jobs:
           if ! grep -q '^CONFIG_DEFAULT_TCP_CONG="bbr"' "$DEFCONFIG"; then
             echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> "$DEFCONFIG"
           fi
+          sed -i 's/^CONFIG_DEFAULT_PFIFO_FAST=y/# CONFIG_DEFAULT_PFIFO_FAST is not set/' "$DEFCONFIG" || true
           if ! grep -q "^CONFIG_NET_SCH_FQ=y" "$DEFCONFIG"; then
             echo "CONFIG_NET_SCH_FQ=y" >> "$DEFCONFIG"
+          fi
+          if ! grep -q "^CONFIG_NET_SCH_DEFAULT=y" "$DEFCONFIG"; then
+            echo "CONFIG_NET_SCH_DEFAULT=y" >> "$DEFCONFIG"
+          fi
+          if ! grep -q "^CONFIG_DEFAULT_FQ=y" "$DEFCONFIG"; then
+            echo "CONFIG_DEFAULT_FQ=y" >> "$DEFCONFIG"
+          fi
+          if ! grep -q '^CONFIG_DEFAULT_NET_SCH="fq"' "$DEFCONFIG"; then
+            echo 'CONFIG_DEFAULT_NET_SCH="fq"' >> "$DEFCONFIG"
           fi
           # 将 net/ipv4/Kconfig 中默认 default m 的算法修改为 default n，彻底杜绝生成多余 .ko
           KCONFIG_NET="$KERNEL_ROOT/common/net/ipv4/Kconfig"
@@ -1216,9 +1226,15 @@ jobs:
                   grep -q "^CONFIG_TCP_CONG_ADVANCED=y" "$DEFCONFIG" || echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$DEFCONFIG"
                   grep -q "^CONFIG_TCP_CONG_BBR=y" "$DEFCONFIG" || echo "CONFIG_TCP_CONG_BBR=y" >> "$DEFCONFIG"
                   grep -q "^CONFIG_DEFAULT_BBR=y" "$DEFCONFIG" || echo "CONFIG_DEFAULT_BBR=y" >> "$DEFCONFIG"
+                  grep -q "^CONFIG_NET_SCH_FQ=y" "$DEFCONFIG" || echo "CONFIG_NET_SCH_FQ=y" >> "$DEFCONFIG"
+                  grep -q "^CONFIG_NET_SCH_DEFAULT=y" "$DEFCONFIG" || echo "CONFIG_NET_SCH_DEFAULT=y" >> "$DEFCONFIG"
+                  grep -q "^CONFIG_DEFAULT_FQ=y" "$DEFCONFIG" || echo "CONFIG_DEFAULT_FQ=y" >> "$DEFCONFIG"
                   grep -q "^CONFIG_TCP_CONG_ADVANCED=y" "$FRAG" || echo "CONFIG_TCP_CONG_ADVANCED=y" >> "$FRAG"
                   grep -q "^CONFIG_TCP_CONG_BBR=y" "$FRAG" || echo "CONFIG_TCP_CONG_BBR=y" >> "$FRAG"
                   grep -q "^CONFIG_DEFAULT_BBR=y" "$FRAG" || echo "CONFIG_DEFAULT_BBR=y" >> "$FRAG"
+                  grep -q "^CONFIG_NET_SCH_FQ=y" "$FRAG" || echo "CONFIG_NET_SCH_FQ=y" >> "$FRAG"
+                  grep -q "^CONFIG_NET_SCH_DEFAULT=y" "$FRAG" || echo "CONFIG_NET_SCH_DEFAULT=y" >> "$FRAG"
+                  grep -q "^CONFIG_DEFAULT_FQ=y" "$FRAG" || echo "CONFIG_DEFAULT_FQ=y" >> "$FRAG"
                 fi
                 echo "=== KSU Fragment 内容 ==="
                 cat "$FRAG"
